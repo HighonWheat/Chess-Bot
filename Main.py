@@ -50,7 +50,9 @@ while running:
                     # Clicked an invalid destination or empty space
                     selected_square = None
 
-    draw_board(screen, board) #draw the chess board and pieces on the screen
+    draw_board(
+        screen, board, selected_square
+    )  # draw the chess board, pieces, and legal-move hints
 
     pygame.display.flip()
 

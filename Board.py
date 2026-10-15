@@ -21,7 +21,7 @@ def load_images():
             )
 
 
-def draw_board(screen, board):
+def draw_board(screen, board, selected_square=None):
     for row in range(8):
         for col in range(8):
             color = color_light if (row + col) % 2 == 0 else color_dark
@@ -39,6 +39,19 @@ def draw_board(screen, board):
     for square, piece in board.piece_map().items():
         col = square % 8
         row = 7 - square // 8
-        color = "w" if piece.color else "b"
-        image = PIECES[f"{color}{piece.symbol().upper()}"]
+        piece_color = "w" if piece.color else "b"
+        image = PIECES[f"{piece_color}{piece.symbol().upper()}"]
         screen.blit(image, (col * square_size, row * square_size))
+
+    if selected_square is not None:
+        move_overlay = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+        for move in board.legal_moves:
+            if move.from_square == selected_square:
+                dest_col = move.to_square % 8
+                dest_row = 7 - move.to_square // 8
+                center = (
+                    dest_col * square_size + square_size // 2,
+                    dest_row * square_size + square_size // 2,
+                )
+                pygame.draw.circle(move_overlay, (40, 40, 40, 128), center, 12)
+        screen.blit(move_overlay, (0, 0))
