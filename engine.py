@@ -32,3 +32,42 @@ def evaluate_board(board):
         else:
             score -= value
     return score
+
+def minimax(board, depth, alpha, beta, maximizing_player):
+    """
+        Recursively searches the game tree to find the best score.
+        - depth: how many half-moves (plies) left to search
+        - alpha: best score White is guaranteed so far
+        - beta: best score Black is guaranteed so far
+        - maximizing_player: True if it's White's turn, False if Black's
+        """
+    if depth == 0 or board.is_game_over():
+        return evaluate_board(board)
+
+    if maximizing_player:
+        max_eval = -float('inf')
+        for move in board.legal_moves:
+            board.push(move)
+            eval_score = minimax(board, depth - 1, alpha, beta, False) # Recursively call minimax for the next player
+            board.pop()
+
+            max_eval = max(max_eval, eval_score)
+            alpha = max(alpha, eval_score)
+
+            if beta <= alpha:
+                break  # Beta cut-off
+        return max_eval
+
+    else:
+        min_eval = float('inf')
+        for move in board.legal_moves:
+            board.push(move)
+            eval_score = minimax(board, depth - 1, alpha, beta, True) # Recursively call minimax for the next player
+            board.pop()
+
+            min_eval = min(min_eval, eval_score)
+            beta = min(beta, eval_score)
+
+            if beta <= alpha:
+                break  # Alpha cut-off
+        return min_eval
