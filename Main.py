@@ -2,6 +2,7 @@ import pygame
 import sys
 from Board import draw_board, load_images
 import chess
+from engine import get_best_move
 board = chess.Board()
 
 pygame.init()
@@ -53,8 +54,15 @@ while running:
     draw_board(
         screen, board, selected_square
     )  # draw the chess board, pieces, and legal-move hints
-
     pygame.display.flip()
+    if board.turn == chess.BLACK:
+        # AI's turn (Black)
+        ai_move = get_best_move(board, depth=3)
+        if ai_move:
+            board.push(ai_move)
+
+    
+    
 
     clock.tick(60) #limit the frame rate to 60 frames per second
 

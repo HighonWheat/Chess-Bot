@@ -71,3 +71,30 @@ def minimax(board, depth, alpha, beta, maximizing_player):
             if beta <= alpha:
                 break  # Alpha cut-off
         return min_eval
+
+def get_best_move(board, depth):
+    best_move = None
+    
+    # Check if the AI is currently playing as White or Black
+    if board.turn == chess.WHITE:
+        best_score = -float('inf')
+        for move in board.legal_moves:
+            board.push(move)
+            # After White moves, it is Black's turn (False)
+            score = minimax(board, depth - 1, -float('inf'), float('inf'), False)
+            board.pop()
+            if score > best_score:
+                best_score = score
+                best_move = move
+    else:
+        best_score = float('inf')
+        for move in board.legal_moves:
+            board.push(move)
+            # After Black moves, it is White's turn (True)
+            score = minimax(board, depth - 1, -float('inf'), float('inf'), True)
+            board.pop()
+            if score < best_score:
+                best_score = score
+                best_move = move
+                
+    return best_move
