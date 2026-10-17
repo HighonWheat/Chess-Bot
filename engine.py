@@ -1,4 +1,8 @@
 import chess
+import json
+from pathlib import Path
+
+WEIGHTS_FILE = Path(__file__).parent / "weights.json"
 
 PIECES_VALUES = {
     chess.PAWN: 100,
@@ -8,6 +12,24 @@ PIECES_VALUES = {
     chess.QUEEN: 900,
     chess.KING: 20000,
 }
+
+def load_weights():
+    """Loads positional weights from a weight.json or create a new table of 0s."""
+    if WEIGHTS_FILE.exists():
+        with open(WEIGHTS_FILE, "r") as f:
+            data = json.load(f)
+            return {int(k): v for k, v in data.items()}
+    else:
+        weights = {piece_type: [0.0] * 64 for piece_type in range(1, 7)}
+        save_weights(weights)
+        return weights
+
+def save_weights(weights):
+    """Saves the learned positional weights to weights.json."""
+    with open(WEIGHTS_FILE, "w") as f:
+        json.dump(weights, f, indent=2)
+
+POSITION_WEIGHTS = load_weights()
 
 def evaluate_board(board):
     """
@@ -26,12 +48,19 @@ def evaluate_board(board):
 
     #  Loop through all pieces on the board using board.piece_map()
     for square, piece in board.piece_map().items():
-        value = PIECES_VALUES[piece.piece_type]
+        base_value = PIECES_VALUES[piece.piece_type]
+        piece_table = POSITION_WEIGHTS[piece.piece_type]
         if piece.color == chess.WHITE:
-            score += value
+            bonus = piece_table[square]
+            score += base_value + bonus
         else:
-            score -= value
+            mirrored_square = chess.square_mirror(square)
+            bonus = piece_table[mirrored_square]
+            score -= base_value + bonus
+
     return score
+
+
 
 def minimax(board, depth, alpha, beta, maximizing_player):
     """
